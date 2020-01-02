@@ -119,8 +119,12 @@ def libc_ver():
     Returns a tuple of strings (lib, version) which default to empty strings
     in case the lookup fails.
     """
-    glibc_version = glibc_version_string()
-    if glibc_version is None:
-        return ("", "")
-    else:
-        return ("glibc", glibc_version)
+    try:
+        glibc_version = glibc_version_string()
+        if glibc_version is None:
+            return ("", "")
+        else:
+            return ("glibc", glibc_version)
+    except Exception:
+        import platform
+        return platform.libc_ver()
