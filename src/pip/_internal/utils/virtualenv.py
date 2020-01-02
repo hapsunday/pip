@@ -94,11 +94,18 @@ def _no_global_under_regular_virtualenv():
     This mirrors logic in pypa/virtualenv for determining whether system
     site-packages are visible in the virtual environment.
     """
-    site_mod_dir = os.path.dirname(os.path.abspath(site.__file__))
-    no_global_site_packages_file = os.path.join(
-        site_mod_dir, 'no-global-site-packages.txt',
-    )
-    return os.path.exists(no_global_site_packages_file)
+    try:
+        site_mod_dir = os.path.dirname(os.path.abspath(site.__file__))
+        no_global_site_packages_file = os.path.join(
+            site_mod_dir, 'no-global-site-packages.txt',
+        )
+        return os.path.exists(no_global_site_packages_file)
+    except NameError:
+        if not getattr(sys, 'oxidized', False):
+            raise
+        import importlib
+        return importlib.resources.is_resource(
+            site, 'no-global-site-packages.txt')
 
 
 def virtualenv_no_global():

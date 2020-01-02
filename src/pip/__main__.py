@@ -10,8 +10,9 @@ if __package__ == '':
     # first dirname call strips of '/__main__.py', second strips off '/pip'
     # Resulting path is the name of the wheel itself
     # Add that to sys.path so we can import pip
-    path = os.path.dirname(os.path.dirname(__file__))
-    sys.path.insert(0, path)
+    if not getattr(sys, 'oxidized', False):
+        path = os.path.dirname(os.path.dirname(__file__))
+        sys.path.insert(0, path)
 
 from pip._internal.cli.main import main as _main  # isort:skip # noqa
 

@@ -75,14 +75,21 @@ logger = logging.getLogger(__name__)
 
 def get_pip_version():
     # type: () -> str
-    pip_pkg_dir = os.path.join(os.path.dirname(__file__), "..", "..")
-    pip_pkg_dir = os.path.abspath(pip_pkg_dir)
-
-    return (
-        'pip {} from {} (python {})'.format(
-            __version__, pip_pkg_dir, get_major_minor_version(),
+    if not getattr(sys, 'oxidized', False):
+        pip_pkg_dir = os.path.join(os.path.dirname(__file__), "..", "..")
+        pip_pkg_dir = os.path.abspath(pip_pkg_dir)
+        return (
+            'pip {} from {} (python {})'.format(
+                __version__, pip_pkg_dir, get_major_minor_version(),
+            )
         )
-    )
+    else:
+        return (
+            'pip {} from {} (python {})'.format(
+                __version__, os.path.dirname(sys.executable),
+                get_major_minor_version(),
+            )
+        )
 
 
 def normalize_version_info(py_version_info):

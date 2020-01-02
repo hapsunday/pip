@@ -15,7 +15,11 @@ from sysconfig import get_paths
 
 from pip._vendor.pkg_resources import Requirement, VersionConflict, WorkingSet
 
-from pip import __file__ as pip_location
+if not getattr(sys, 'oxidized', False):
+    from pip import __file__ as pip_location
+else:
+    pip_location = None
+
 from pip._internal.utils.subprocess import call_subprocess
 from pip._internal.utils.temp_dir import TempDirectory
 from pip._internal.utils.typing import MYPY_CHECK_RUNNING
@@ -169,11 +173,18 @@ class BuildEnvironment(object):
         prefix.setup = True
         if not requirements:
             return
-        args = [
-            sys.executable, os.path.dirname(pip_location), 'install',
-            '--ignore-installed', '--no-user', '--prefix', prefix.path,
-            '--no-warn-script-location',
-        ]  # type: List[str]
+        if pip_location is None:
+            args = [
+                sys.executable, '-m', 'pip', 'install',
+                '--ignore-installed', '--no-user', '--prefix', prefix.path,
+                '--no-warn-script-location',
+            ]  # type: List[str]
+        else:
+            args = [
+                sys.executable, os.path.dirname(pip_location), 'install',
+                '--ignore-installed', '--no-user', '--prefix', prefix.path,
+                '--no-warn-script-location',
+            ]  # type: List[str]
         if logger.getEffectiveLevel() <= logging.DEBUG:
             args.append('-v')
         for format_control in ('no_binary', 'only_binary'):

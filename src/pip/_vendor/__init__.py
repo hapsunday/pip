@@ -20,7 +20,10 @@ DEBUNDLED = False
 # add to the beginning of sys.path before attempting to import anything. This
 # is done to support downstream re-distributors like Debian and Fedora who
 # wish to create their own Wheels for our dependencies to aid in debundling.
-WHEEL_DIR = os.path.abspath(os.path.dirname(__file__))
+if not getattr(sys, 'oxidized', False):
+    WHEEL_DIR = os.path.abspath(os.path.dirname(__file__))
+else:
+    WHEEL_DIR = None
 
 
 # Define a small helper function to alias our vendored modules to the real ones
@@ -52,7 +55,7 @@ def vendored(modulename):
 # to our sys.path. This will cause all of this code to be a no-op typically
 # however downstream redistributors can enable it in a consistent way across
 # all platforms.
-if DEBUNDLED:
+if DEBUNDLED and WHEEL_DIR is not None:
     # Actually look inside of WHEEL_DIR to find .whl files and add them to the
     # front of our sys.path.
     sys.path[:] = glob.glob(os.path.join(WHEEL_DIR, "*.whl")) + sys.path
